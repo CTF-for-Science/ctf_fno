@@ -237,14 +237,11 @@ class FNO:
     """
     Fourier Neural Operator (FNO) model wrapper.
     
-    This class provides an interface for training and using the FNO model,
-    handling data preparation, model initialization, training, and prediction.
+    This class provides an interface for training and evaluating the FNO model.
     
     Attributes:
         pair_id (int): ID for the data pair to consider
         train_data (np.ndarray): Training data
-        m (int): Number of time points
-        n (int): Number of spatial points
         init_data (np.ndarray): Burn-in data for prediction
         prediction_horizon_steps (int): Number of timesteps to predict
         modes1 (int): Number of Fourier modes in first dimension
@@ -268,7 +265,7 @@ class FNO:
             train_data (Optional[np.ndarray]): Training data for the model
             init_data (Optional[np.ndarray]): Initialization data for prediction
             prediction_horizon_steps (int): Number of timesteps to predict
-            pair_id (Optional[int]): Identifier for the data pair to consider
+            pair_id (Optional[int]): Identifier for the data pair
         """
         # Store config
         self.config = config
@@ -583,16 +580,7 @@ class FNO:
             # For reconstruction tasks, ensure predictions match the training data shape
             if self.reconstruction_task:
                 if denormalized_predictions.shape[0] != self.train_data.shape[0]:
-                    logger.warning(f"Shape mismatch in reconstruction task: predictions shape {denormalized_predictions.shape} vs training data shape {self.train_data.shape}")
-                    # Pad or truncate predictions to match training data shape
-                    if denormalized_predictions.shape[0] < self.train_data.shape[0]:
-                        # Pad with zeros
-                        padding = torch.zeros((self.train_data.shape[0] - denormalized_predictions.shape[0], self.n), 
-                                           dtype=self.dtype, device=self.device)
-                        denormalized_predictions = torch.cat([denormalized_predictions, padding], dim=0)
-                    else:
-                        # Truncate
-                        denormalized_predictions = denormalized_predictions[:self.train_data.shape[0]]
+                    raise ValueError(f"Shape mismatch in reconstruction task: predictions shape {denormalized_predictions.shape} vs training data shape {self.train_data.shape}.")
             
             # Final cleanup
             torch.cuda.empty_cache()
