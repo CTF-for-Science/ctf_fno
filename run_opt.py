@@ -58,7 +58,7 @@ def main(config_path: str) -> None:
             prediction_timesteps = get_validation_prediction_timesteps(dataset_name, pair_id, train_split)
 
             # Initialize model
-            model = FNO(config, train_data, init_data, prediction_timesteps.shape[0], pair_id)
+            model = FNO(config, train_data, init_data, prediction_timesteps, pair_id)
 
             # Train model
             model.train()
